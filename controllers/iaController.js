@@ -7,7 +7,7 @@ class IAController {
      */
     async enviarPergunta(req, res) {
         try {
-            const { pergunta, contexto } = req.body;
+            const { pergunta, quizConfig } = req.body;
 
             // Validação
             if (!pergunta) {
@@ -23,7 +23,8 @@ class IAController {
             // Enviar pergunta para IA
             const resultado = await azureOpenAIService.enviarPergunta(
                 pergunta,
-                contexto || `Contexto do curso: ${sessao.gameData.courseName}, Tema: ${sessao.gameData.quizTheme}`,
+                sessao.gameData.courseName || '',
+                sessao.gameData.quizTheme || '',
                 historicoAnterior
             );
 
@@ -42,41 +43,6 @@ class IAController {
             console.error('Erro ao processar pergunta:', error);
             res.status(500).json({
                 error: 'Erro ao processar pergunta',
-                message: error.message
-            });
-        }
-    }
-
-    /**
-     * Gerar perguntas de quiz
-     */
-    async gerarPerguntas(req, res) {
-        try {
-            // Validar sessão
-            const sessao = sessionService.validarSessao(req);
-            const { courseName, quizTheme, questionCount } = sessao.gameData;
-
-            // Gerar perguntas
-            const perguntas = await azureOpenAIService.gerarPerguntas(
-                quizTheme,
-                questionCount,
-                courseName
-            );
-
-            // Salvar perguntas na sessão
-            sessao.gameData.questions = perguntas;
-
-            res.json({
-                message: 'Perguntas geradas com sucesso',
-                questions: perguntas,
-                total: perguntas.length,
-                sessionId: sessao.userId
-            });
-
-        } catch (error) {
-            console.error('Erro ao gerar perguntas:', error);
-            res.status(500).json({
-                error: 'Erro ao gerar perguntas',
                 message: error.message
             });
         }

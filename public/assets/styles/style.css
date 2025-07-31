@@ -4,6 +4,7 @@
 :root {
     --primary-color: #075792;
     --secondary-color: #0F9996;
+    --tertiary-color: #d5312d;
     --text-color: #202843;
     --font-family: 'Open Sans', sans-serif;
     --logo-color: #f08922;
@@ -46,7 +47,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, #f08922 25%, #202843 75%, #d5312d 100%);
+    background: linear-gradient(135deg, var(--tertiary-color) 25%, #202843 75%, var(--tertiary-color) 100%);
     border: none;
     border-radius: 10px;
     transition: transform 0.2s ease;
@@ -81,9 +82,9 @@ body {
 
 /* Estilos do quiz */
 .quiz-header {
-    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    background: linear-gradient(135deg, var(--tertiary-color) 0%, #075792 100%);
     color: white;
-    padding: 2rem 0;
+    padding: 1rem 0;
 }
 
 .question-card {
@@ -114,4 +115,84 @@ body {
 .team-score {
     border-radius: 10px;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+#caixaPergunta {
+    resize: vertical;
+    min-height: 120px;
+    text-align: left;
+}
+
+.quiz-header #quizTheme, .quiz-header #courseName {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Estilos específicos para o card de resposta da IA */
+#respostaIA {
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+}
+
+#respostaIA.show {
+    opacity: 1;
+    visibility: visible;
+    height: auto;
+    overflow: visible;
+}
+
+/* Garantir que o conteúdo interno também seja oculto */
+#respostaIA .card {
+    transition: all 0.3s ease-in-out;
+}
+
+#respostaIA:not(.show) .card-header,
+#respostaIA:not(.show) .card-body,
+#respostaIA:not(.show) .card-footer {
+    display: none !important;
+}
+
+/* Estilos para o texto da resposta */
+#textoResposta {
+    min-height: 60px;
+    line-height: 1.6;
+    word-wrap: break-word;
+}
+
+#textoResposta:empty::before {
+    content: "Aguardando resposta...";
+    color: #6c757d;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Estado de carregamento para o card de resposta */
+#respostaIA.loading {
+    opacity: 0.6;
+}
+
+#respostaIA.loading .card-body {
+    position: relative;
+}
+
+#respostaIA.loading .card-body::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #198754;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
