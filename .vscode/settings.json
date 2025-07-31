@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/d4b8fcd5-29f4-4e4b-b3f3-876426ac299d/resourceGroups/appsvc_linux_brazilsouth_premium/providers/Microsoft.Web/sites/desaf-ia",
+    "appService.deploySubpath": "."
+}

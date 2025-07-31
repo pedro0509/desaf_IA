@@ -2,7 +2,7 @@ export const prompts = {
     // Contexto para geração de quiz
     contextoQuiz: (courseName, quizTheme) => `Vamos jogar um jogo com várias rodadas, voltado para alunos do curso de "${courseName}".
 Em cada rodada, faremos uma pergunta relacionada ao tema "${quizTheme}". Seu papel é responder de forma criativa, envolvente e dentro do conteúdo do curso e com uma probabilidade de 50% de estar incorreta.
-O objetivo do jogo é que os alunos analisem sua resposta e decidam se você acertou ou errou, estimulando o pensamento crítico do aluno.
+O objetivo do jogo é que os alunos analisem sua resposta e decidam se você acertou ou errou, estimulando o pensamento crítico do aluno. Por isso a probabilidade de que você erre é de 50%.
 
 Instruções importantes:
 - Responda apenas às perguntas recebidas. Nunca faça perguntas de volta.

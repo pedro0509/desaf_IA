@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="./assets/images/desafia_mascote.ico" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="./assets/styles/style.css">
+
+    <title>Resultados - Desaf.IA</title>
+
+    <style>
+        .resultado-header {
+            background: linear-gradient(135deg, var(--tertiary-color) 0%, #075792 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .group-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .group-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .group-header {
+            border-radius: 15px 15px 0 0;
+            padding: 1rem;
+            font-weight: bold;
+        }
+
+        .group-1 .group-header {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .group-2 .group-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .group-3 .group-header {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+        }
+
+        .group-4 .group-header {
+            background: linear-gradient(135deg, #fd7e14, #e83e8c);
+        }
+
+        .group-5 .group-header {
+            background: linear-gradient(135deg, #6f42c1, #495057);
+        }
+
+        .group-6 .group-header {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+        }
+
+        .message-bubble {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .pergunta-item {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left-color: #2196f3;
+            margin-bottom: 0.5rem;
+        }
+
+        .resposta-item {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-left-color: #9c27b0;
+            margin-bottom: 1.5rem;
+        }
+
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-number {
+            background: #007bff;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .pergunta-item .message-number {
+            background: #2196f3;
+        }
+
+        .resposta-item .message-number {
+            background: #9c27b0;
+        }
+
+        .message-content {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .empty-group {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .export-btn {
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .group-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            margin-left: auto;
+            color: white;
+        }
+
+        /* Mostrar loading por padrão */
+        #loadingSection {
+            display: flex;
+        }
+
+        #errorSection,
+        #gruposContainer,
+        #noResultsSection {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .message-bubble {
+                padding: 1rem;
+            }
+
+            .message-header {
+                font-size: 0.9rem;
+            }
+
+            .message-number {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header dos Resultados -->
+    <div class="resultado-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h2 mb-1">
+                        <i class="bi bi-trophy-fill me-2"></i>
+                        Resultados do Quiz
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <span id="courseName">Carregando...</span> - <span id="quizTheme">Carregando...</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex justify-content-md-end align-items-center mt-3 mt-md-0 flex-wrap gap-2">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-light dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>
+                                Exportar
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="exportarResultados()">
+                                        <i class="bi bi-file-earmark-code me-2"></i>JSON
+                                    </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportarCSV()">
+                                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>CSV
+                                    </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportarTexto()">
+                                        <i class="bi bi-file-earmark-text me-2"></i>Texto
+                                    </a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#" onclick="imprimirResultados()">
+                                        <i class="bi bi-printer me-2"></i>Imprimir
+                                    </a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline-light" onclick="novoJogo()" title="Novo Jogo">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Novo Jogo
+                        </button>
+                        <button class="btn btn-outline-light" onclick="goHome()" title="Voltar ao início">
+                            <i class="bi bi-house-door"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <!-- Estatísticas Gerais -->
+        <div class="row mb-4">
+            <div class="col-md-6 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="h3 mb-0 text-primary" id="totalGrupos">-</div>
+                    <small class="text-muted">Total de Grupos</small>
+                </div>
+            </div>
+            <div class="col-md-6 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="h3 mb-0 text-success" id="totalPerguntas">-</div>
+                    <small class="text-muted">Total de Perguntas</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingSection" class="loading-spinner">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2 text-muted">Carregando histórico dos grupos...</p>
+            </div>
+        </div>
+
+        <!-- Erro -->
+        <div id="errorSection" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span id="errorMessage">Erro ao carregar resultados</span>
+            <button class="btn btn-outline-danger btn-sm ms-2" onclick="carregarResultados()">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Tentar Novamente
+            </button>
+        </div>
+
+        <!-- Histórico por Grupos -->
+        <div id="gruposContainer">
+            <!-- Os grupos serão gerados dinamicamente aqui -->
+        </div>
+
+        <!-- Nenhum resultado -->
+        <div id="noResultsSection" class="text-center py-5">
+            <div class="col-md-6 mx-auto">
+                <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+                <h3 class="text-muted">Nenhum histórico encontrado</h3>
+                <p class="text-muted">Parece que nenhum grupo fez perguntas ainda.</p>
+                <button class="btn btn-primary" onclick="goHome()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Voltar ao Início
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="./assets/scripts/resultados.js"></script>
+
+    <script>
+        // ==========================================
+        // VARIÁVEIS GLOBAIS
+        // ==========================================
+        let historicoCompleto = null;
+        let dadosJogo = null;
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function () {
+            carregarResultados();
+        });
+
+        // ==========================================
+        // CARREGAMENTO DE DADOS
+        // ==========================================
+        async function carregarResultados() {
+            try {
+                mostrarLoading();
+
+                // Carregar dados da sessão
+                await carregarDadosJogo();
+
+                // Carregar histórico completo
+                await carregarHistoricoCompleto();
+
+                // Renderizar resultados
+                renderizarResultados();
+
+                mostrarResultados();
+
+            } catch (error) {
+                console.error('Erro ao carregar resultados:', error);
+                mostrarErro(error.message);
+            }
+        }
+
+        async function carregarDadosJogo() {
+            const response = await fetch('/api/session/game-session', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados do jogo');
+            }
+
+            const data = await response.json();
+            dadosJogo = data.gameData;
+
+            // Atualizar informações do cabeçalho
+            document.getElementById('courseName').textContent = dadosJogo.courseName || 'Curso não definido';
+            document.getElementById('quizTheme').textContent = dadosJogo.quizTheme || 'Tema não definido';
+        }
+
+        async function carregarHistoricoCompleto() {
+            const response = await fetch('/api/ia/history', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar histórico');
+            }
+
+            historicoCompleto = await response.json();
+        }
+
+        // ==========================================
+        // RENDERIZAÇÃO
+        // ==========================================
+        function renderizarResultados() {
+            if (!historicoCompleto || !dadosJogo) {
+                throw new Error('Dados não carregados');
+            }
+
+            // Atualizar estatísticas
+            atualizarEstatisticas();
+
+            // Verificar se há histórico
+            const temHistorico = Object.values(historicoCompleto.historicoPorGrupo || {}).some(hist => hist.length > 0);
+
+            if (!temHistorico) {
+                mostrarSemResultados();
+                return;
+            }
+
+            // Renderizar grupos
+            renderizarGrupos();
+        }
+
+        function atualizarEstatisticas() {
+            const totalGrupos = dadosJogo.teamCount || 0;
+            let totalPerguntas = 0;
+
+            // Calcular totais
+            Object.values(historicoCompleto.historicoPorGrupo || {}).forEach(historico => {
+                const perguntas = historico.filter(msg => msg.role === 'user').length;
+                totalPerguntas += perguntas;
+            });
+
+            // Atualizar elementos
+            document.getElementById('totalGrupos').textContent = totalGrupos;
+            document.getElementById('totalPerguntas').textContent = totalPerguntas;
+        }
+
+        function renderizarGrupos() {
+            const container = document.getElementById('gruposContainer');
+            container.innerHTML = '';
+
+            for (let grupoId = 1; grupoId <= dadosJogo.teamCount; grupoId++) {
+                const historicoGrupo = historicoCompleto.historicoPorGrupo[grupoId] || [];
+                const grupoElement = criarElementoGrupo(grupoId, historicoGrupo);
+                container.appendChild(grupoElement);
+            }
+        }
+
+        function criarElementoGrupo(grupoId, historico) {
+            const grupoDiv = document.createElement('div');
+            grupoDiv.className = 'col-12 mb-4';
+
+            const perguntas = historico.filter(msg => msg.role === 'user').length;
+
+            grupoDiv.innerHTML = `
+                <div class="group-card group-${grupoId}">
+                    <div class="group-header text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="bi bi-people-fill me-2"></i>
+                                Grupo ${grupoId}
+                            </h4>
+                        </div>
+                        <div class="group-stats">
+                            <small>${perguntas} ${perguntas === 1 ? 'pergunta' : 'perguntas'}</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="historico-grupo-${grupoId}">
+                            ${historico.length === 0 ? criarMensagemVazio() : criarMensagens(historico)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return grupoDiv;
+        }
+
+        function criarMensagens(historico) {
+            let html = '';
+            let numeroMensagem = 1;
+
+            // Processar em pares (pergunta + resposta)
+            for (let i = 0; i < historico.length; i += 2) {
+                const pergunta = historico[i];
+                const resposta = historico[i + 1];
+
+                if (pergunta && pergunta.role === 'user') {
+                    // Pergunta
+                    html += `
+                        <div class="message-bubble pergunta-item">
+                            <div class="message-header">
+                                <div class="message-number">${numeroMensagem}</div>
+                                <span>Pergunta ${numeroMensagem}:</span>
+                            </div>
+                            <div class="message-content">
+                                ${escapeHtml(pergunta.content)}
+                            </div>
+                        </div>
+                    `;
+
+                    // Resposta correspondente
+                    if (resposta && resposta.role === 'assistant') {
+                        html += `
+                            <div class="message-bubble resposta-item">
+                                <div class="message-header">
+                                    <div class="message-number">${numeroMensagem}</div>
+                                    <span>Resposta ${numeroMensagem}:</span>
+                                </div>
+                                <div class="message-content">
+                                    ${escapeHtml(resposta.content)}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    numeroMensagem++;
+                }
+            }
+
+            return html;
+        }
+
+        function criarMensagemVazio() {
+            return `
+                <div class="empty-group">
+                    <i class="bi bi-chat-dots display-4 text-muted mb-3"></i>
+                    <p class="text-muted">Este grupo ainda não fez nenhuma pergunta.</p>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // UTILIDADES
+        // ==========================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function mostrarLoading() {
+            document.getElementById('loadingSection').style.display = 'flex';
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('gruposContainer').style.display = 'none';
+            document.getElementById('noResultsSection').style.display = 'none';
+        }
+
+        function mostrarResultados() {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('gruposContainer').style.display = 'block';
+            document.getElementById('noResultsSection').style.display = 'none';
+        }
+
+        function mostrarSemResultados() {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('gruposContainer').style.display = 'none';
+            document.getElementById('noResultsSection').style.display = 'block';
+        }
+
+        function mostrarErro(mensagem) {
+            document.getElementById('errorMessage').textContent = mensagem;
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('gruposContainer').style.display = 'none';
+            document.getElementById('noResultsSection').style.display = 'none';
+        }
+
+        // ==========================================
+        // AÇÕES
+        // ==========================================
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function novoJogo() {
+            if (confirm('Tem certeza que deseja iniciar um novo jogo? O histórico atual será perdido.')) {
+                // Limpar localStorage
+                localStorage.removeItem('gameSessionId');
+                localStorage.removeItem('gameCreated');
+
+                // Redirecionar para início
+                window.location.href = 'index.html';
+            }
+        }
+
+        function exportarResultados() {
+            if (!historicoCompleto || !dadosJogo) {
+                alert('Nenhum dado para exportar');
+                return;
+            }
+
+            const dados = {
+                jogo: {
+                    curso: dadosJogo.courseName,
+                    tema: dadosJogo.quizTheme,
+                    totalGrupos: dadosJogo.teamCount,
+                    perguntasPorGrupo: dadosJogo.questionCount,
+                    criadoEm: dadosJogo.createdAt
+                },
+                estatisticas: {
+                    totalGrupos: dadosJogo.teamCount,
+                    totalPerguntas: Object.values(historicoCompleto.historicoPorGrupo).reduce((acc, hist) =>
+                        acc + hist.filter(msg => msg.role === 'user').length, 0),
+                    totalRespostas: Object.values(historicoCompleto.historicoPorGrupo).reduce((acc, hist) =>
+                        acc + hist.filter(msg => msg.role === 'assistant').length, 0)
+                },
+                historicoPorGrupo: historicoCompleto.historicoPorGrupo
+            };
+
+            const dataStr = JSON.stringify(dados, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `resultados-quiz-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+        }
+
+        // ==========================================
+        // FUNÇÕES PARA DEBUGGING (console)
+        // ==========================================
+        window.mostrarDados = function () {
+            console.log('=== DADOS DO JOGO ===');
+            console.log(dadosJogo);
+            console.log('=== HISTÓRICO COMPLETO ===');
+            console.log(historicoCompleto);
+
+            // Verificar estrutura do histórico
+            if (historicoCompleto && historicoCompleto.historicoPorGrupo) {
+                console.log('=== ANÁLISE DO HISTÓRICO ===');
+                Object.entries(historicoCompleto.historicoPorGrupo).forEach(([grupoId, historico]) => {
+                    console.log(`Grupo ${grupoId}:`, historico.length, 'mensagens');
+                    historico.forEach((msg, index) => {
+                        console.log(`  ${index}: ${msg.role} - ${msg.content.substring(0, 50)}...`);
+                    });
+                });
+            }
+        };
+
+        window.debugRenderizacao = function () {
+            console.log('=== DEBUG RENDERIZAÇÃO ===');
+            console.log('dadosJogo:', !!dadosJogo);
+            console.log('historicoCompleto:', !!historicoCompleto);
+
+            if (historicoCompleto) {
+                const temHistorico = Object.values(historicoCompleto.historicoPorGrupo || {}).some(hist => hist.length > 0);
+                console.log('temHistorico:', temHistorico);
+
+                // Forçar renderização
+                try {
+                    renderizarResultados();
+                    console.log('Renderização executada com sucesso');
+                } catch (error) {
+                    console.error('Erro na renderização:', error);
+                }
+            }
+        };
+
+        window.recarregarResultados = carregarResultados;
+    </script>
+
+</body>
+
+</html>

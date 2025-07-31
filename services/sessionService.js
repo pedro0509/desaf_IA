@@ -18,6 +18,12 @@ class SessionService {
             req.session.createdAt = new Date();
         }
 
+        // Criar histórico separado para cada grupo
+        const historicoPorGrupo = {};
+        for (let i = 1; i <= parseInt(teamCount); i++) {
+            historicoPorGrupo[i] = [];
+        }
+
         req.session.gameData = {
             courseName,
             quizTheme,
@@ -25,7 +31,8 @@ class SessionService {
             teamCount: parseInt(teamCount),
             createdAt: new Date(),
             status: 'created',
-            historico: []
+            historico: [], // Mantido para compatibilidade
+            historicoPorGrupo: historicoPorGrupo
         };
 
         return {
@@ -80,6 +87,72 @@ class SessionService {
 
         req.session.gameData.historico = novoHistorico;
         return req.session.gameData;
+    }
+
+    /**
+     * Atualizar histórico de conversa para um grupo específico
+     * @param {Object} req - Request object
+     * @param {number} grupoId - ID do grupo (1, 2, 3, etc.)
+     * @param {Array} novoHistorico - Novo histórico do grupo
+     */
+    atualizarHistoricoPorGrupo(req, grupoId, novoHistorico) {
+        if (!req.session.gameData) {
+            throw new Error('Sessão inválida');
+        }
+
+        if (!req.session.gameData.historicoPorGrupo) {
+            // Inicializar histórico por grupo se não existir (compatibilidade)
+            req.session.gameData.historicoPorGrupo = {};
+            for (let i = 1; i <= req.session.gameData.teamCount; i++) {
+                req.session.gameData.historicoPorGrupo[i] = [];
+            }
+        }
+
+        req.session.gameData.historicoPorGrupo[grupoId] = novoHistorico;
+        return req.session.gameData;
+    }
+
+    /**
+     * Obter histórico de conversa para um grupo específico
+     * @param {Object} req - Request object
+     * @param {number} grupoId - ID do grupo (1, 2, 3, etc.)
+     * @returns {Array} Histórico do grupo
+     */
+    obterHistoricoPorGrupo(req, grupoId) {
+        if (!req.session.gameData) {
+            throw new Error('Sessão inválida');
+        }
+
+        if (!req.session.gameData.historicoPorGrupo) {
+            // Inicializar histórico por grupo se não existir (compatibilidade)
+            req.session.gameData.historicoPorGrupo = {};
+            for (let i = 1; i <= req.session.gameData.teamCount; i++) {
+                req.session.gameData.historicoPorGrupo[i] = [];
+            }
+        }
+
+        return req.session.gameData.historicoPorGrupo[grupoId] || [];
+    }
+
+    /**
+     * Obter histórico completo de todos os grupos
+     * @param {Object} req - Request object
+     * @returns {Object} Histórico de todos os grupos
+     */
+    obterTodoHistoricoPorGrupo(req) {
+        if (!req.session.gameData) {
+            throw new Error('Sessão inválida');
+        }
+
+        if (!req.session.gameData.historicoPorGrupo) {
+            // Inicializar histórico por grupo se não existir (compatibilidade)
+            req.session.gameData.historicoPorGrupo = {};
+            for (let i = 1; i <= req.session.gameData.teamCount; i++) {
+                req.session.gameData.historicoPorGrupo[i] = [];
+            }
+        }
+
+        return req.session.gameData.historicoPorGrupo;
     }
 }
 

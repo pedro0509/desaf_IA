@@ -464,7 +464,8 @@ async function enviarPerguntaIA(pergunta) {
             credentials: 'include',
             body: JSON.stringify({
                 pergunta: pergunta,
-                quizConfig: quizConfig
+                quizConfig: quizConfig,
+                grupoId: currentTeam // Enviar ID do grupo atual
             })
         });
 
@@ -474,11 +475,91 @@ async function enviarPerguntaIA(pergunta) {
         }
 
         const data = await response.json();
+        console.log(`Pergunta enviada pelo Grupo ${currentTeam}:`, pergunta);
+        console.log(`Resposta da IA para Grupo ${currentTeam}:`, data.resposta);
+        console.log(`Total de mensagens do Grupo ${currentTeam}:`, data.totalMensagensGrupo);
+        
         return data.resposta;
 
     } catch (error) {
         console.error('Erro ao enviar pergunta:', error);
         throw new Error(error.message || 'Erro de comunicação com o servidor');
+    }
+}
+
+// Obter histórico de um grupo específico
+async function obterHistoricoGrupo(grupoId) {
+    try {
+        const response = await fetch(`/api/ia/history?grupoId=${grupoId}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erro ao obter histórico');
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error(`Erro ao obter histórico do grupo ${grupoId}:`, error);
+        throw new Error(error.message || 'Erro de comunicação com o servidor');
+    }
+}
+
+// Obter histórico completo de todos os grupos
+async function obterHistoricoCompleto() {
+    try {
+        const response = await fetch('/api/ia/history', {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erro ao obter histórico completo');
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('Erro ao obter histórico completo:', error);
+        throw new Error(error.message || 'Erro de comunicação com o servidor');
+    }
+}
+
+// Mostrar histórico de um grupo específico (para debugging)
+async function mostrarHistoricoGrupo(grupoId) {
+    try {
+        const historico = await obterHistoricoGrupo(grupoId);
+        console.log(`=== Histórico do Grupo ${grupoId} ===`);
+        console.log(`Total de mensagens: ${historico.total_mensagens}`);
+        console.log('Mensagens:', historico.historico);
+        return historico;
+    } catch (error) {
+        console.error(`Erro ao mostrar histórico do grupo ${grupoId}:`, error);
+    }
+}
+
+// Mostrar histórico completo de todos os grupos (para debugging)
+async function mostrarHistoricoCompleto() {
+    try {
+        const historico = await obterHistoricoCompleto();
+        console.log('=== Histórico Completo de Todos os Grupos ===');
+        console.log(`Total de grupos: ${historico.total_grupos}`);
+        console.log(`Total de mensagens gerais: ${historico.total_mensagens_geral}`);
+        
+        Object.entries(historico.historicoPorGrupo).forEach(([grupoId, hist]) => {
+            console.log(`Grupo ${grupoId}: ${hist.length} mensagens`);
+        });
+        
+        console.log('Histórico por grupo:', historico.historicoPorGrupo);
+        return historico;
+    } catch (error) {
+        console.error('Erro ao mostrar histórico completo:', error);
     }
 }
 
@@ -491,3 +572,9 @@ window.initQuiz = initQuiz;
 window.nextTeam = nextTeam;
 window.clearQuestion = clearQuestion;
 window.goHome = goHome;
+
+// Funções para debugging e análise de histórico
+window.mostrarHistoricoGrupo = mostrarHistoricoGrupo;
+window.mostrarHistoricoCompleto = mostrarHistoricoCompleto;
+window.obterHistoricoGrupo = obterHistoricoGrupo;
+window.obterHistoricoCompleto = obterHistoricoCompleto;

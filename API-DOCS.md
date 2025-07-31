@@ -62,12 +62,13 @@ Obtém os dados da sessão atual do jogo.
 ## 🤖 **Inteligência Artificial** (`/api/ia`)
 
 ### **POST** `/api/ia/ask`
-Envia uma pergunta para a IA e recebe uma resposta.
+Envia uma pergunta para a IA e recebe uma resposta. Agora suporta histórico separado por grupos.
 
 **Body:**
 ```json
 {
     "pergunta": "O que é programação orientada a objetos?",
+    "grupoId": 1,
     "contexto": "Contexto adicional opcional"
 }
 ```
@@ -79,7 +80,9 @@ Envia uma pergunta para a IA e recebe uma resposta.
     "pergunta": "O que é programação orientada a objetos?",
     "resposta": "Programação orientada a objetos é...",
     "tokens_utilizados": 150,
-    "sessionId": "uuid-da-sessao"
+    "sessionId": "uuid-da-sessao",
+    "grupoId": 1,
+    "totalMensagensGrupo": 4
 }
 ```
 
@@ -110,12 +113,16 @@ Gera perguntas de quiz usando IA baseadas nos dados da sessão.
 ```
 
 ### **GET** `/api/ia/history`
-Obtém o histórico de conversas com a IA na sessão atual.
+Obtém o histórico de conversas com a IA. Suporta consulta por grupo específico ou histórico completo.
 
-**Response (200):**
+**Query Parameters:**
+- `grupoId` (opcional): ID do grupo para obter histórico específico (ex: `?grupoId=1`)
+
+**Response para grupo específico (200):**
 ```json
 {
-    "message": "Histórico obtido com sucesso",
+    "message": "Histórico do Grupo 1 obtido com sucesso",
+    "grupoId": 1,
     "historico": [
         {
             "role": "user",
@@ -128,6 +135,28 @@ Obtém o histórico de conversas com a IA na sessão atual.
     ],
     "total_mensagens": 2,
     "sessionId": "uuid-da-sessao"
+}
+```
+
+**Response para histórico completo (200):**
+```json
+{
+    "message": "Histórico completo obtido com sucesso",
+    "historicoPorGrupo": {
+        "1": [
+            {"role": "user", "content": "Pergunta grupo 1"},
+            {"role": "assistant", "content": "Resposta grupo 1"}
+        ],
+        "2": [
+            {"role": "user", "content": "Pergunta grupo 2"},
+            {"role": "assistant", "content": "Resposta grupo 2"}
+        ]
+    },
+    "total_grupos": 2,
+    "total_mensagens_geral": 4,
+    "sessionId": "uuid-da-sessao",
+    "historico": [],
+    "total_mensagens": 0
 }
 ```
 
@@ -184,7 +213,7 @@ const response = await fetch('/api/ia/generate-questions', {
 });
 ```
 
-#### **4. Enviar Pergunta para IA**
+#### **4. Enviar Pergunta para IA (com grupo)**
 ```javascript
 const response = await fetch('/api/ia/ask', {
     method: 'POST',
@@ -192,8 +221,25 @@ const response = await fetch('/api/ia/ask', {
     credentials: 'include',
     body: JSON.stringify({
         pergunta: 'Minha pergunta',
+        grupoId: 1,
         contexto: 'Contexto opcional'
     })
+});
+```
+
+#### **5. Obter Histórico de Grupo Específico**
+```javascript
+const response = await fetch('/api/ia/history?grupoId=1', {
+    method: 'GET',
+    credentials: 'include'
+});
+```
+
+#### **6. Obter Histórico Completo de Todos os Grupos**
+```javascript
+const response = await fetch('/api/ia/history', {
+    method: 'GET',
+    credentials: 'include'
 });
 ```
 
@@ -222,11 +268,18 @@ const response = await fetch('/api/ia/ask', {
 ✅ **Implementadas e Testadas:**
 - `/api/session/create-session` 
 - `/api/session/game-session`
+- `/api/ia/ask` (com suporte a grupos)
+- `/api/ia/history` (histórico por grupos)
 
 🔧 **A Implementar:**
-- `/api/ia/ask`
 - `/api/ia/generate-questions` 
-- `/api/ia/history`
+
+📝 **Funcionalidades Adicionadas:**
+- ✅ Histórico separado por grupos
+- ✅ Consulta de histórico por grupo específico
+- ✅ Consulta de histórico completo de todos os grupos
+- ✅ Validação de IDs de grupos
+- ✅ Compatibilidade com versão anterior
 
 📝 **Próximos Passos:**
 1. Criar os arquivos de service, controller e routes
