@@ -37,10 +37,10 @@ class AzureOpenAIService {
             const resposta = await this.client.chat.completions.create({
                 messages,
                 max_tokens: 300,
-                temperature: 0.85,
-                top_p: 0.9,
-                frequency_penalty: 0.2,
-                presence_penalty: 0.3,
+                temperature: 1.5,
+                top_p: 0.5,
+                frequency_penalty: 0.8,
+                presence_penalty: 0.9,
                 stop: null
             });
 
